@@ -45,6 +45,8 @@ new ApiGatewayAuthPolicy(accountId, optionalConfig)
       'aws:SourceIp': ['203.0.113.0/24', '2001:DB8:1234:5678::/64'],
     },
   })
+  .addValueToContext('isSecured', true)
+  .addValueToContext('name', 'diogo')
   .render('principalId');
 ```
 
@@ -52,45 +54,48 @@ new ApiGatewayAuthPolicy(accountId, optionalConfig)
 
 ```json
 {
-  "context": {
-    "isSecured": true,
-    "name": "diogo"
-  },
+  "principalId": "principalId",
   "policyDocument": {
+    "Version": "2012-10-17",
     "Statement": [
       {
         "Action": "execute-api:Invoke",
+        "Effect": "Allow",
+        "Resource": ["arn:aws:execute-api:eu-west-1:12345:xxxxxxxxxx/production/GET/media"],
         "Condition": {
           "StringEquals": {
             "aws:username": "johndoe"
           }
-        },
-        "Effect": "Allow",
-        "Resource": ["arn:aws:execute-api:*:12345:*:*:GET:/media"]
+        }
       },
       {
         "Action": "execute-api:Invoke",
         "Effect": "Allow",
-        "Resource": ["arn:aws:execute-api:*:12345:*:*:PATCH:/media", "arn:aws:execute-api:*:12345:*:*:POST:/media"]
+        "Resource": [
+          "arn:aws:execute-api:eu-west-1:12345:xxxxxxxxxx/production/PATCH/media",
+          "arn:aws:execute-api:eu-west-1:12345:xxxxxxxxxx/production/POST/media"
+        ]
       },
       {
         "Action": "execute-api:Invoke",
+        "Effect": "Deny",
+        "Resource": ["arn:aws:execute-api:eu-west-1:12345:xxxxxxxxxx/production/PUT/media"],
         "Condition": {
           "IpAddress": {
             "aws:SourceIp": ["203.0.113.0/24", "2001:DB8:1234:5678::/64"]
           }
-        },
-        "Effect": "Deny",
-        "Resource": ["arn:aws:execute-api:*:12345:*:*:PUT:/media"]
+        }
       },
       {
         "Action": "execute-api:Invoke",
         "Effect": "Deny",
-        "Resource": ["arn:aws:execute-api:*:12345:*:*:DELETE:/media"]
+        "Resource": ["arn:aws:execute-api:eu-west-1:12345:xxxxxxxxxx/production/DELETE/media"]
       }
-    ],
-    "Version": "2012-10-17"
+    ]
   },
-  "principalId": "*"
+  "context": {
+    "isSecured": true,
+    "name": "diogo"
+  }
 }
 ```
